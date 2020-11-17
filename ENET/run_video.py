@@ -1,23 +1,17 @@
 import torch
-from torchsummary import summary
-from torchvision import transforms
 import models
 import cv2
 import torch.nn.functional as F
 import numpy as np
-import dataset as ds
-import utils.transforms as tf
-
 
 # PATH = "state_dict_model.pt"
 PATH = "trained/ERFNet_trained.tar"
 num_class = 5 #Culane
 img_width = 976
 img_height = 208
-H_offset = 360
+H_offset = 400
 LANE_THRESH = 110
 image_path = "D:/github/dataset/driver_23_30frame/05151640_0419.MP4/00000.jpg"
-
 
 def image_feed(img):
     image = img.copy()[H_offset:, :, :]
@@ -34,7 +28,7 @@ model = torch.nn.DataParallel(model, device_ids=[0]).cuda()
 model.load_state_dict(checkpoint['state_dict'], strict=False)
 model.eval()
 
-cap = cv2.VideoCapture("2.mkv")
+cap = cv2.VideoCapture("2.mp4")
 while 1:
     _, frame = cap.read()
     frame= cv2.resize(frame, (1280,720))
@@ -71,7 +65,7 @@ while 1:
     # print(drawded.dtype, masked_full.dtype)
     # drawded[masked_full != 0] = masked_full
     dst = cv2.addWeighted(masked_full,0.6,drawded,0.9,0)
-
+    cv2.line(dst, (0, H_offset), (dst.shape[1], H_offset), (0,255,255),1)
     # cv2.imshow("masked_full", masked_full)
     cv2.imshow("dst", dst)
         # cv2.imshow("prob_map", np.uint8(prob_map))
